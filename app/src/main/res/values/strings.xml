@@ -1,3 +1,4 @@
 <resources>
+    <string name="sample">sample</string>
     <string name="app_name">Contributors</string>
 </resources>
