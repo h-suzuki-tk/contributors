@@ -3,6 +3,7 @@ package com.example.contributors
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.eclipsesource.json.Json
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +22,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val toolbar = findViewById<Toolbar>(R.id.tool_bar)
+        toolbar.apply {
+            title = ""
+        }
+        setSupportActionBar(toolbar)
+      
         readContributors()
         replaceFragment(_default_fragment)
     }
@@ -47,7 +54,7 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
-
+      
     }
 
     public fun replaceFragment(fragment : Fragment) {
