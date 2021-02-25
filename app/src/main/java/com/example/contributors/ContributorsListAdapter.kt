@@ -4,6 +4,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
@@ -13,10 +14,14 @@ class ContributorsListAdapter : RecyclerView.Adapter<ContributorsListAdapter.Vie
     private val _contributors = mutableListOf<Contributor>()
 
     class ViewHolder(view : View) : RecyclerView.ViewHolder(view) {
-        val text_view : TextView
+        val login_text        : TextView
+        val contribution_text : TextView
+        val item_layout       : LinearLayout
 
         init {
-            text_view = view.findViewById(R.id.text_view)
+            login_text        = view.findViewById(R.id.text_view)
+            contribution_text = view.findViewById(R.id.text_view2)
+            item_layout       = view.findViewById(R.id.item_layout)
         }
     }
 
@@ -27,10 +32,13 @@ class ContributorsListAdapter : RecyclerView.Adapter<ContributorsListAdapter.Vie
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.apply {
-            text_view.text = _contributors[position].element(ELEMENTS.LOGIN)
-            text_view.setOnClickListener {
+
+            login_text.text        = _contributors[position].element(ELEMENTS.LOGIN)
+            contribution_text.text = _contributors[position].element(ELEMENTS.CONTRIBUTIONS)
+            item_layout.setOnClickListener {
                 Log.d("確認", "押されました")
             }
+
         }
     }
 
