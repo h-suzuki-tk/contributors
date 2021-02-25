@@ -23,7 +23,7 @@ class ContributorsListFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        _contributors_adapter = ContributorsListAdapter()
+        _contributors_adapter = ContributorsListAdapter(requireActivity())
     }
 
     override fun onCreateView(
@@ -51,9 +51,9 @@ class ContributorsListFragment : Fragment() {
         super.onDetach()
     }
 
-    fun addContributor( contributor : Contributor ) {
+    fun addContributor(id : Int,  contributor : Contributor) {
         Handler(Looper.getMainLooper()).post {
-            _contributors_adapter.add(contributor)
+            _contributors_adapter.add(id, contributor)
             _contributors_adapter.notifyItemInserted(_contributors_adapter.itemCount-1)
         }
     }

@@ -1,5 +1,8 @@
 package com.example.contributors
 
+import android.app.Activity
+import android.content.Context
+import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -7,11 +10,20 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.RecyclerView
+import java.lang.NullPointerException
 
-class ContributorsListAdapter : RecyclerView.Adapter<ContributorsListAdapter.ViewHolder>() {
+class ContributorsListAdapter(activity : Activity) : RecyclerView.Adapter<ContributorsListAdapter.ViewHolder>() {
+    private val _activity = activity
 
-    private val _contributors = mutableListOf<Contributor>()
+    data class Item (
+        val id : Int,
+        val login : String,
+        val contribs : Int
+    )
+    private val _items = mutableListOf<Item>()
 
     class ViewHolder(view : View) : RecyclerView.ViewHolder(view) {
         val login_text        : TextView
@@ -33,19 +45,25 @@ class ContributorsListAdapter : RecyclerView.Adapter<ContributorsListAdapter.Vie
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.apply {
 
-            login_text.text        = _contributors[position].element(ELEMENTS.LOGIN)
-            contribution_text.text = _contributors[position].element(ELEMENTS.CONTRIBUTIONS)
+            login_text.text        = _items[position].login
+            contribution_text.text = _items[position].contribs.toString()
             item_layout.setOnClickListener {
-                Log.d("確認", "押されました")
+                (_activity as? MainActivity)?.replaceFragment(ContributorDetailFragment().apply {
+                    arguments = Bundle().apply { putInt("id", _items[position].id) }
+                })
             }
 
         }
     }
 
-    override fun getItemCount() = _contributors.size
+    override fun getItemCount() = _items.size
 
-    fun add(contributor: Contributor) {
-        _contributors.add(contributor)
+    fun add(id: Int, contributor: Contributor) {
+        _items.add(Item(
+            id = id,
+            login = contributor.element(ELEMENTS.LOGIN).toString(),
+            contribs = contributor.element(ELEMENTS.CONTRIBUTIONS)?.toInt()?: throw NullPointerException()
+        ))
     }
 
 }

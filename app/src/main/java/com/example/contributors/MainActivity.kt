@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
 import com.eclipsesource.json.Json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -50,7 +51,7 @@ class MainActivity : AppCompatActivity() {
             // 取得データの解析
             for ( data in  Json.parse(it).asArray()) {
                 _contributors += Contributor(data.asObject())
-                _default_fragment.addContributor(_contributors.last())
+                _default_fragment.addContributor(_contributors.size-1, _contributors.last())
             }
 
         }
@@ -58,7 +59,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     public fun replaceFragment(fragment : Fragment) {
+
         val ft = supportFragmentManager.beginTransaction().apply {
+            setCustomAnimations(
+                R.anim.open_enter,
+                R.anim.close_enter,
+                R.anim.open_exit,
+                R.anim.close_exit)
             replace(R.id.content, fragment)
             addToBackStack(null)
         }
