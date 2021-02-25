@@ -10,11 +10,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val ft = supportFragmentManager.beginTransaction().apply {
-            replace(R.id.content, ContributorsListFragment())
-            addToBackStack(null)
-        }
-        ft.commit()
+        replaceFragment(ContributorsListFragment())
     }
 
     public fun replaceFragment(fragment : Fragment) {
