@@ -8,7 +8,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 
-class ContributorsListAdapter(private val dataset : Array<String>) : RecyclerView.Adapter<ContributorsListAdapter.ViewHolder>() {
+class ContributorsListAdapter : RecyclerView.Adapter<ContributorsListAdapter.ViewHolder>() {
+
+    private val _contributors = mutableListOf<Contributor>()
 
     class ViewHolder(view : View) : RecyclerView.ViewHolder(view) {
         val text_view : TextView
@@ -25,13 +27,17 @@ class ContributorsListAdapter(private val dataset : Array<String>) : RecyclerVie
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.apply {
-            text_view.text = dataset[position]
+            text_view.text = _contributors[position].element(ELEMENTS.LOGIN)
             text_view.setOnClickListener {
                 Log.d("確認", "押されました")
             }
         }
     }
 
-    override fun getItemCount() = dataset.size
+    override fun getItemCount() = _contributors.size
+
+    fun add(contributor: Contributor) {
+        _contributors.add(contributor)
+    }
 
 }
