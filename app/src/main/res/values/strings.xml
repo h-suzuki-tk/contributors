@@ -2,4 +2,16 @@
     <string name="sample">sample</string>
     <string name="app_name">Contributors</string>
     <string name="contributions">contribs.</string>
+
+    <string name="n_public_repos">repositories</string>
+    <string name="n_public_gists">gists</string>
+    <string name="n_followers">followers</string>
+    <string name="n_following">following</string>
+    <string name="company">Company</string>
+    <string name="blog">Blog</string>
+    <string name="location">Location</string>
+    <string name="email">E-mail</string>
+    <string name="twitter">Twitter</string>
+    <string name="created_at">Created at</string>
+    <string name="updated_at">Updated at</string>
 </resources>

@@ -1,39 +1,39 @@
 package com.example.contributors
 
 import android.app.Activity
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.RecyclerView
-import java.lang.NullPointerException
+import coil.api.load
+import coil.transform.CircleCropTransformation
 
 class ContributorsListAdapter(activity : Activity) : RecyclerView.Adapter<ContributorsListAdapter.ViewHolder>() {
     private val _activity = activity
 
     data class Item (
-        val id : Int,
-        val login : String,
+        val user : User,
         val contribs : Int
     )
     private val _items = mutableListOf<Item>()
 
     class ViewHolder(view : View) : RecyclerView.ViewHolder(view) {
+        val avatar_img        : ImageView
+        val name_text         : TextView
         val login_text        : TextView
         val contribution_text : TextView
         val item_layout       : LinearLayout
 
         init {
-            login_text        = view.findViewById(R.id.text_view)
-            contribution_text = view.findViewById(R.id.text_view2)
-            item_layout       = view.findViewById(R.id.item_layout)
+            avatar_img        = view.findViewById(R.id.avatar)
+            name_text         = view.findViewById(R.id.name)
+            login_text        = view.findViewById(R.id.login)
+            contribution_text = view.findViewById(R.id.contribs)
+            item_layout       = view.findViewById(R.id.row)
         }
     }
 
@@ -45,11 +45,17 @@ class ContributorsListAdapter(activity : Activity) : RecyclerView.Adapter<Contri
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.apply {
 
-            login_text.text        = _items[position].login
+            avatar_img.load(_items[position].user.element(ELEMENTS.AVATAR_URL)) {
+                transformations(CircleCropTransformation())
+            }
+            name_text.text         = _items[position].user.element(ELEMENTS.NAME) ?: "No name"
+            login_text.text        = _items[position].user.element(ELEMENTS.LOGIN)
             contribution_text.text = _items[position].contribs.toString()
             item_layout.setOnClickListener {
-                (_activity as? MainActivity)?.replaceFragment(ContributorDetailFragment().apply {
-                    arguments = Bundle().apply { putInt("id", _items[position].id) }
+                (_activity as? MainActivity)?.replaceFragment(UserDetailFragment().apply {
+                    arguments = Bundle().apply {
+                        putParcelable("user", _items[position].user)
+                    }
                 })
             }
 
@@ -58,12 +64,8 @@ class ContributorsListAdapter(activity : Activity) : RecyclerView.Adapter<Contri
 
     override fun getItemCount() = _items.size
 
-    fun add(id: Int, contributor: Contributor) {
-        _items.add(Item(
-            id = id,
-            login = contributor.element(ELEMENTS.LOGIN).toString(),
-            contribs = contributor.element(ELEMENTS.CONTRIBUTIONS)?.toInt()?: throw NullPointerException()
-        ))
+    fun add(user : User, contribs : Int) {
+        _items.add(Item(user, contribs))
     }
 
 }

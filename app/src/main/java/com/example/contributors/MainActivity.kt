@@ -2,21 +2,23 @@ package com.example.contributors
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import android.view.MenuItem
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import com.eclipsesource.json.Json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import okhttp3.Request
 
 class MainActivity : AppCompatActivity() {
 
-    private val _contributors = mutableListOf<Contributor>()
+    companion object {
+        const val CONTRIBUTORS_URL = "https://api.github.com/repositories/90792131/contributors"
+        const val URL = "url"
+        const val CONTRIBUTIONS = "contributions"
+    }
+
     private val _default_fragment = ContributorsListFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,39 +30,37 @@ class MainActivity : AppCompatActivity() {
             title = ""
         }
         setSupportActionBar(toolbar)
-      
+
+        //val appInfo = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+        //val apikey = appInfo.metaData.getString("TOKEN")
+        //Log.d("確認", apikey.toString())
+
+        supportFragmentManager.beginTransaction()
+            .add(R.id.content, _default_fragment)
+            .commit()
+
         readContributors()
-        replaceFragment(_default_fragment)
     }
 
     private fun readContributors() = GlobalScope.launch {
 
-        // 非同期処理
-        async(Dispatchers.Default) {
+        async(Dispatchers.Default) { HTTP.get(CONTRIBUTORS_URL) }.await().let { buf ->
 
-            // 通信・データの取得
-            OkHttpClient().newCall(Request
-                .Builder()
-                .url(CONTRIBUTORS_URL)
-                .addHeader("H-API-KEY", "AUTH_API_KEY_20181203")
-                .build()
-            ).execute().body()?.string()
-
-        }.await().let {
-
-            // 取得データの解析
-            for ( data in  Json.parse(it).asArray()) {
-                _contributors += Contributor(data.asObject())
-                _default_fragment.addContributor(_contributors.size-1, _contributors.last())
+            for ( data in  Json.parse(buf).asArray()) {
+                data.asObject().let { obj ->
+                    _default_fragment.addContributor(
+                            User.read(obj.getString(URL, null)),
+                            obj.get(CONTRIBUTIONS).asInt())
+                }
             }
 
         }
       
     }
 
-    public fun replaceFragment(fragment : Fragment) {
+    fun replaceFragment(fragment : Fragment) {
 
-        val ft = supportFragmentManager.beginTransaction().apply {
+        supportFragmentManager.beginTransaction().apply {
             setCustomAnimations(
                 R.anim.open_enter,
                 R.anim.close_enter,
@@ -68,8 +68,16 @@ class MainActivity : AppCompatActivity() {
                 R.anim.close_exit)
             replace(R.id.content, fragment)
             addToBackStack(null)
+        }.commit()
+
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.getItemId()) {
+            android.R.id.home -> supportFragmentManager.popBackStack()
         }
-        ft.commit()
+
+        return super.onOptionsItemSelected(item)
     }
 
 }

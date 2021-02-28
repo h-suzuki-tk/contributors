@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -51,10 +52,15 @@ class ContributorsListFragment : Fragment() {
         super.onDetach()
     }
 
-    fun addContributor(id : Int,  contributor : Contributor) {
+    fun addContributor(user : User?, contribs : Int) {
         Handler(Looper.getMainLooper()).post {
-            _contributors_adapter.add(id, contributor)
-            _contributors_adapter.notifyItemInserted(_contributors_adapter.itemCount-1)
+            when ( user ) {
+                null -> Log.d(null, "variable \'user\' is null.")
+                else -> {
+                    _contributors_adapter.add(user, contribs)
+                    _contributors_adapter.notifyItemInserted(_contributors_adapter.itemCount-1)
+                }
+            }
         }
     }
 
