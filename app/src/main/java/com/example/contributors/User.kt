@@ -58,8 +58,8 @@ class ELEMENTS {
 class User(private val obj : JsonObject) : Parcelable {
 
     companion object {
-        suspend fun read(url: String) : User? = withContext(Dispatchers.Default) {
-            User(Json.parse(HTTP.get(url)).asObject())
+        suspend fun read(client : HTTP, url: String) : User? = withContext(Dispatchers.Default) {
+            User(Json.parse(client.get(url)).asObject())
         }
     }
 

@@ -1,7 +1,9 @@
 package com.example.contributors
 
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
@@ -13,8 +15,12 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var _http_client : HTTP
+
     companion object {
         const val CONTRIBUTORS_URL = "https://api.github.com/repositories/90792131/contributors"
+        const val USER = "h-suzuki-tk"
+        const val PASSWD = "TOKEN"
         const val URL = "url"
         const val CONTRIBUTIONS = "contributions"
     }
@@ -25,15 +31,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        _http_client = HTTP(
+            user = USER,
+            passwd = packageManager.getApplicationInfo(
+                packageName, PackageManager.GET_META_DATA).metaData.getString(PASSWD) ?: "")
+
         val toolbar = findViewById<Toolbar>(R.id.tool_bar)
         toolbar.apply {
             title = ""
         }
         setSupportActionBar(toolbar)
-
-        //val appInfo = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
-        //val apikey = appInfo.metaData.getString("TOKEN")
-        //Log.d("確認", apikey.toString())
 
         supportFragmentManager.beginTransaction()
             .add(R.id.content, _default_fragment)
@@ -44,13 +51,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun readContributors() = GlobalScope.launch {
 
-        async(Dispatchers.Default) { HTTP.get(CONTRIBUTORS_URL) }.await().let { buf ->
+        async(Dispatchers.Default) { _http_client.get(CONTRIBUTORS_URL) }.await().let { buf ->
 
-            for ( data in  Json.parse(buf).asArray()) {
+            for ( data in Json.parse(buf).asArray() ) {
                 data.asObject().let { obj ->
                     _default_fragment.addContributor(
-                            User.read(obj.getString(URL, null)),
-                            obj.get(CONTRIBUTIONS).asInt())
+                        User.read(_http_client, obj.getString(URL, null)),
+                        obj.get(CONTRIBUTIONS).asInt())
                 }
             }
 

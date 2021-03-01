@@ -1,25 +1,33 @@
 package com.example.contributors
 
+import okhttp3.Authenticator
 import okhttp3.Credentials
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
-class HTTP {
 
-    private val client = OkHttpClient()
+class HTTP(
+    user : String,
+    passwd : String) {
 
-    companion object {
-        const val USER = "h-suzuki-tk"
-        const val PASSWD = "passwd"
+    private val _client : OkHttpClient
 
-        fun get(url: String) : String? {
-            return OkHttpClient().newCall(
-                Request
-                .Builder()
-                .url(url)
-                .header("Authorization", Credentials.basic(USER, PASSWD))
-                .build()
-            ).execute().body()?.string()
-        }
+    init {
+        _client = OkHttpClient.Builder().apply {
+            addInterceptor { chain -> chain.proceed(
+                chain.request().newBuilder().apply {
+                    header("Authorization", Credentials.basic(user, passwd))
+                }.build()
+            )}
+        }.build()
     }
+
+    fun get(url: String) : String? {
+        return _client.newCall(
+            Request.Builder().apply {
+                url(url)
+            }.build()
+        ).execute().body()?.string()
+    }
+
 }
