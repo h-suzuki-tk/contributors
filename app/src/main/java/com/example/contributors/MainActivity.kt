@@ -15,14 +15,12 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var _http_client : HTTP
+    lateinit var _http_client : HTTP
 
     companion object {
         const val CONTRIBUTORS_URL = "https://api.github.com/repositories/90792131/contributors"
         const val USER = "h-suzuki-tk"
         const val PASSWD = "TOKEN"
-        const val URL = "url"
-        const val CONTRIBUTIONS = "contributions"
     }
 
     private val _default_fragment = ContributorsListFragment()
@@ -45,24 +43,6 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .add(R.id.content, _default_fragment)
             .commit()
-
-        readContributors()
-    }
-
-    private fun readContributors() = GlobalScope.launch {
-
-        async(Dispatchers.Default) { _http_client.get(CONTRIBUTORS_URL) }.await().let { buf ->
-
-            for ( data in Json.parse(buf).asArray() ) {
-                data.asObject().let { obj ->
-                    _default_fragment.addContributor(
-                        User.read(_http_client, obj.getString(URL, null)),
-                        obj.get(CONTRIBUTIONS).asInt())
-                }
-            }
-
-        }
-      
     }
 
     fun replaceFragment(fragment : Fragment) {
