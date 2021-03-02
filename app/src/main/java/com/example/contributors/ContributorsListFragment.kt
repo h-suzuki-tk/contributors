@@ -40,15 +40,12 @@ class ContributorsListFragment : Fragment() {
 
         _http_client = (requireActivity() as? MainActivity)?._http_client ?: throw NullPointerException()
         _contributors_adapter = ContributorsListAdapter(requireActivity())
-        GlobalScope.launch {
-            if ( initLoadContributors() ) { _isAllLoaded = true }
-        }
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?): View? {
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?): View? {
 
         super.onCreateView(inflater, container, savedInstanceState)
         return inflater.inflate(R.layout.fragment_contributors_list, container, false)
@@ -63,6 +60,14 @@ class ContributorsListFragment : Fragment() {
         progress_bar = view.findViewById(R.id.prog_bar)
         contributors_list = view.findViewById(R.id.recycler_view)
 
+        GlobalScope.launch {
+            initLoadContributors().let { _isAllLoaded
+                Handler(Looper.getMainLooper()).post {
+                    progress_bar.visibility = View.GONE
+                }
+            }
+        }
+
         contributors_list.apply {
             layoutManager = LinearLayoutManager(requireContext())
             addItemDecoration(ItemDecoration(requireContext()))
@@ -71,11 +76,10 @@ class ContributorsListFragment : Fragment() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
                     if (!recyclerView.canScrollVertically(1)
-                        && (!_isLoading && !_isAllLoaded) ) {
+                            && (!_isLoading && !_isAllLoaded) ) {
                         progress_bar.visibility = View.VISIBLE
                         GlobalScope.launch {
-                            if ( loadContributors() ) {
-                                _isAllLoaded = true
+                            loadContributors().let { _isAllLoaded
                                 Handler(Looper.getMainLooper()).post {
                                     progress_bar.visibility = View.GONE
                                 }
@@ -130,6 +134,7 @@ class ContributorsListFragment : Fragment() {
                         }
                     } else {
                         toastGetInfError()
+                        isAllLoaded = true
                         return@repeat
                     }
                 }

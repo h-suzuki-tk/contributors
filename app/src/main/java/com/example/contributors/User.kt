@@ -50,7 +50,7 @@ class ELEMENTS {
                 ORGANIZATIONS_URL, REPOS_URL, EVENTS_URL, RECEIVED_EVENTS_URL, TYPE, SITE_ADMIN,
                 NAME, COMPANY, BLOG, LOCATION, HIREABLE, EMAIL, BIO, TWITTER_USERNAME,
                 PUBLIC_REPOS, PUBLIC_GISTS, FOLLOWERS, FOLLOWING, CREATED_AT, UPDATED_AT
-                )
+        )
     }
 }
 
@@ -59,7 +59,10 @@ class User(private val obj : JsonObject) : Parcelable {
 
     companion object {
         suspend fun read(client : HTTP, url: String) : User? = withContext(Dispatchers.Default) {
-            User(Json.parse(client.get(url)).asObject())
+            Json.parse(client.get(url)).let {
+                if ( it.isFalse || it.isNull || !it.isObject ) { null }
+                else { User(it.asObject()) }
+            }
         }
     }
 
