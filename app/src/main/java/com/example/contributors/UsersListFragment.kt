@@ -138,6 +138,7 @@ class UsersListFragment : Fragment() {
                         }
                     } else {
                         toastGetInfError()
+                        isAllLoaded = true
                         return@repeat
                     }
                 }
