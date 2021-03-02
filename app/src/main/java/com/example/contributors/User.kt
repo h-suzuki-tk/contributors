@@ -73,7 +73,9 @@ class User(private val obj : JsonObject) : Parcelable {
             obj.get(el).let {
                 _elements += when (it) {
                     null -> mapOf(el to "null")
-                    else -> mapOf(el to it.toString().replace("\"", ""))
+                    else -> mapOf(el to it.toString()
+                            .replace("\"", "")
+                            .replace("\\{.*\\}".toRegex(), ""))
                 }
             }
         }
